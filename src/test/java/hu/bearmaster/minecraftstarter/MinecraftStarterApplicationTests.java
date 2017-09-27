@@ -1,4 +1,4 @@
-package hu.bearmaster;
+package hu.bearmaster.minecraftstarter;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
