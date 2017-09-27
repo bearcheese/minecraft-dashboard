@@ -1,0 +1,19 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <title>Minecraft Starter</title>
+    <meta name="description" content="Minecraft Starter Application"/>
+    <meta name="viewport" content="width=device-width"/>
+</head>
+<body>
+<h1>Welcome</h1>
+<div class="container">
+    Login with: <a href="/login">Facebook</a>
+</div>
+<div class="error" th:if="${unknownUser}">
+    We are sorry, you shall not pass!
+</div>
+</body>
+</html>
