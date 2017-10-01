@@ -1,0 +1,73 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <title>Minecraft Starter</title>
+    <meta name="description" content="Minecraft Starter Application"/>
+    <meta name="viewport" content="width=device-width"/>
+    <meta name="_csrf" th:attr="content=${_csrf.token}"/>
+    <meta name="_csrf_header" th:attr="content=${_csrf.headerName}"/>
+    <script type="text/javascript" src="/webjars/jquery/jquery.min.js"></script>
+</head>
+<body>
+<div>
+    <h3 th:text="'Hello, ' + ${user.name} + '!'" ></h3>
+</div>
+<div>
+    <table>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Instance id</th>
+                <th>Public IP</th>
+                <th>State</th>
+                <th>Launch time</th>
+                <th>Minecraft server</th>
+                <th>Players</th>
+                <th>&nbsp;</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="instance : ${instances}">
+                <td th:text="${instanceStat.count}"></td>
+                <td th:text="${instance.instanceId}"></td>
+                <td th:text="${instance.publicIpAddress}"></td>
+                <td th:text="${instance.state}"></td>
+                <td th:text="${instance.launchTime}"></td>
+                <td th:text="${instance.minecraftServerInfo.status}"></td>
+                <td th:text="${instance.minecraftServerInfo.players}/${instance.minecraftServerInfo.maxPlayers}"></td>
+                <td><a th:if="${instance.state} == 'running'" id="stop-server" href="/admin/stop" th:href="@{/admin/stop}">Stop</a></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<div th:if="${numberOfRunningInstances} == 0">
+    <a id="start-server" href="/admin/start" th:href="@{/admin/start}">Start</a>
+</div>
+<div>
+    TEST! <a id="test" href="/admin/test" th:href="@{/admin/majom}">GO</a>
+</div>
+<script>
+    var adminAjax = function(event) {
+        event.preventDefault();
+        var csrfToken = $("meta[name='_csrf']").attr("content");
+        var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+        var headers = {};
+		headers[csrfHeader] = csrfToken;
+        $.ajax({
+            url: this.href,
+            type: 'POST',
+            headers: headers,
+            success: function(data) {
+                console.log(data);
+            }
+        });
+    }
+    $('#stop-server').click(adminAjax);
+    $('#start-server').click(adminAjax);
+    $('#test').click(adminAjax);
+
+</script>
+</body>
+</html>
