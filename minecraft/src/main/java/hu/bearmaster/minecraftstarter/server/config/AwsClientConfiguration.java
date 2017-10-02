@@ -1,9 +1,9 @@
 package hu.bearmaster.minecraftstarter.server.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.core.io.ProtocolResolver;
 
 import hu.bearmaster.minecraftstarter.shared.aws.S3ProtocolResolver;
@@ -31,5 +31,10 @@ public class AwsClientConfiguration {
     @Bean
     public ProtocolResolver s3ProtocolResolver() {
         return new S3ProtocolResolver(s3Client());
+    }
+
+    @Autowired
+    public void registerS3ProtocolResolver(GenericApplicationContext context) {
+        context.addProtocolResolver(s3ProtocolResolver());
     }
 }
