@@ -27,23 +27,12 @@ public class AdminController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AdminController.class);
 
-
-    @Value("${aws.asg.name}")
-    private String autoScalingGroupName;
-
     private final AwsService awsService;
-
-    private final JwtGeneratorService jwtGeneratorService;
-
-    private final RestTemplate restTemplate;
 
     private final MinecraftServerService minecraftServerService;
 
-    public AdminController(AwsService awsService, JwtGeneratorService jwtGeneratorService, RestTemplate restTemplate,
-            MinecraftServerService minecraftServerService) {
+    public AdminController(AwsService awsService, MinecraftServerService minecraftServerService) {
         this.awsService = awsService;
-        this.jwtGeneratorService = jwtGeneratorService;
-        this.restTemplate = restTemplate;
         this.minecraftServerService = minecraftServerService;
     }
 
@@ -64,27 +53,15 @@ public class AdminController {
                 .count();
     }
 
-    //TODO move to MinecraftServerService
     @RequestMapping(value = "/start", method = RequestMethod.POST)
     public @ResponseBody String startServer() {
-        LOGGER.info("Starting instance in {} group", autoScalingGroupName);
-        awsService.upscaleAutoScalingGroup(autoScalingGroupName);
+        minecraftServerService.startUpServerInstance();
         return "OK";
     }
 
-    //TODO move to MinecraftServerService + additional checks
     @RequestMapping(value = "/stop", method = RequestMethod.POST)
     public @ResponseBody String stopServer() {
-        LOGGER.info("Stopping instance in {} group", autoScalingGroupName);
-        awsService.downscaleAutoScalingGroup(autoScalingGroupName);
-        return "OK";
-    }
-
-    @RequestMapping(value = "/status", method = RequestMethod.POST)
-    public @ResponseBody String majom(@AuthenticationPrincipal User user) {
-        LOGGER.info("Server status invoked");
-
-        LOGGER.info("");
+        minecraftServerService.stopServerInstance();
         return "OK";
     }
 }

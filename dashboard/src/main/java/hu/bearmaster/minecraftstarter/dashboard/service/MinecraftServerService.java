@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import hu.bearmaster.minecraftstarter.dashboard.domain.Ec2Instance;
@@ -48,11 +49,29 @@ public class MinecraftServerService {
         return instances;
     }
 
+    public void startUpServerInstance() {
+        LOGGER.info("Starting instance in {} group", autoScalingGroupName);
+        awsService.upscaleAutoScalingGroup(autoScalingGroupName);
+    }
+
+    public void stopServerInstance() {
+        //TODO add failsafe checks for saving the world map
+        LOGGER.info("Stopping instance in {} group", autoScalingGroupName);
+        awsService.downscaleAutoScalingGroup(autoScalingGroupName);
+    }
+
     private void enrichInstancesWithMinecraftServerInfo(User user, List<Ec2Instance> instances) {
         for (Ec2Instance instance : instances) {
             if (instance.getState().equals("running")) {
-                ExecutionResponse response = getServerStatus(user, instance.getPublicIpAddress());
-                instance.setMinecraftServerInfo(new MinecraftServerInfo(response.getAdditionalInfo()));
+                try {
+                    ExecutionResponse response = getServerStatus(user, instance.getPublicIpAddress());
+                    instance.setMinecraftServerInfo(new MinecraftServerInfo(response.getAdditionalInfo()));
+                } catch (Exception e) {
+                    LOGGER.warn("Failed to connect to minecraft service on {} ({})", instance.getPublicIpAddress(), e.getMessage());
+                    MinecraftServerInfo minecraftServerInfo = new MinecraftServerInfo();
+                    minecraftServerInfo.setStatus("not running");
+                    instance.setMinecraftServerInfo(minecraftServerInfo);
+                }
             }
         }
     }
@@ -77,4 +96,5 @@ public class MinecraftServerService {
     private String getExecuteUrl(String publicIpAddress) {
         return "http://" + publicIpAddress + ":" + minecraftServerPort + "/minecraft/execute";
     }
+
 }

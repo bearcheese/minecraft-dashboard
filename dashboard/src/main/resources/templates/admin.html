@@ -36,7 +36,7 @@
                 <td th:text="${instance.state}"></td>
                 <td th:text="${instance.launchTime}"></td>
                 <td th:text="${instance.minecraftServerInfo.status}"></td>
-                <td th:text="${instance.minecraftServerInfo.players}/${instance.minecraftServerInfo.maxPlayers}"></td>
+                <td th:text="${instance.minecraftServerInfo.players} + '/' + ${instance.minecraftServerInfo.maxPlayers}"></td>
                 <td><a th:if="${instance.state} == 'running'" id="stop-server" href="/admin/stop" th:href="@{/admin/stop}">Stop</a></td>
             </tr>
         </tbody>

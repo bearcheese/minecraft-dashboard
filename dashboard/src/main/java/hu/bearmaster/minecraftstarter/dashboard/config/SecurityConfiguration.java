@@ -13,19 +13,18 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.security.oauth2.client.EnableOAuth2Sso;
 import org.springframework.boot.autoconfigure.security.oauth2.resource.AuthoritiesExtractor;
 import org.springframework.boot.autoconfigure.security.oauth2.resource.PrincipalExtractor;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.oauth2.client.OAuth2ClientContext;
-import org.springframework.security.oauth2.client.OAuth2RestTemplate;
-import org.springframework.security.oauth2.client.resource.OAuth2ProtectedResourceDetails;
 import org.springframework.security.oauth2.provider.token.store.KeyStoreKeyFactory;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.web.client.RestTemplate;
@@ -101,7 +100,16 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
+    @ConfigurationProperties(prefix = "minecraft.rest.connection")
+    public HttpComponentsClientHttpRequestFactory httpRequestFactory()
+    {
+        return new HttpComponentsClientHttpRequestFactory();
+    }
+
+    @Bean
     public RestTemplate restTemplate(RestTemplateBuilder builder) {
-        return builder.build();
+        return builder
+                .requestFactory(httpRequestFactory())
+                .build();
     }
 }
