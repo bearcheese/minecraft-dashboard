@@ -2,9 +2,10 @@ package hu.bearmaster.minecraftstarter.dashboard.domain;
 
 import java.time.Instant;
 
+import hu.bearmaster.minecraftstarter.dashboard.domain.response.MinecraftDetails;
 import software.amazon.awssdk.services.ec2.model.Instance;
 
-public class Ec2Instance {
+public class ServerInstance {
 
     private String instanceId;
 
@@ -14,12 +15,12 @@ public class Ec2Instance {
 
     private Instant launchTime;
 
-    private MinecraftServerInfo minecraftServerInfo;
+    private MinecraftDetails minecraftDetails;
 
-    public Ec2Instance() {
+    public ServerInstance() {
     }
 
-    public Ec2Instance(Instance instance) {
+    public ServerInstance(Instance instance) {
         this.instanceId = instance.instanceId();
         this.publicIpAddress = instance.publicIpAddress();
         this.state = instance.state().name();
@@ -58,11 +59,11 @@ public class Ec2Instance {
         this.launchTime = launchTime;
     }
 
-    public MinecraftServerInfo getMinecraftServerInfo() {
-        return minecraftServerInfo;
+    public MinecraftDetails getMinecraftDetails() {
+        return minecraftDetails;
     }
 
-    public void setMinecraftServerInfo(MinecraftServerInfo minecraftServerInfo) {
-        this.minecraftServerInfo = minecraftServerInfo;
+    public void setMinecraftDetails(MinecraftDetails minecraftServerInfo) {
+        this.minecraftDetails = minecraftServerInfo;
     }
 }

@@ -1,8 +1,9 @@
 package hu.bearmaster.minecraftstarter.server.command;
 
 import static hu.bearmaster.minecraftstarter.server.model.Action.START_SERVER;
-import static hu.bearmaster.minecraftstarter.server.model.Status.FAILED;
-import static hu.bearmaster.minecraftstarter.server.model.Status.SUCCESSFUL;
+import static hu.bearmaster.minecraftstarter.server.model.ServerStatus.STOPPED;
+import static hu.bearmaster.minecraftstarter.server.model.ResponseStatus.FAILED;
+import static hu.bearmaster.minecraftstarter.server.model.ResponseStatus.SUCCESSFUL;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -17,7 +18,8 @@ import org.springframework.stereotype.Component;
 import hu.bearmaster.minecraftstarter.server.model.Action;
 import hu.bearmaster.minecraftstarter.server.model.CommandDetails;
 import hu.bearmaster.minecraftstarter.server.model.ExecutionResponse;
-import hu.bearmaster.minecraftstarter.server.model.Status;
+import hu.bearmaster.minecraftstarter.server.model.MinecraftDetails;
+import hu.bearmaster.minecraftstarter.server.service.StatusService;
 
 @Component
 public class StartMinecraftServerCommand implements Command {
@@ -29,13 +31,31 @@ public class StartMinecraftServerCommand implements Command {
 
     @Value("${minecraft.start.script}")
     private String startScriptName;
+    
+    private final StatusService statusService;
+
+    public StartMinecraftServerCommand(StatusService statusService) {
+        this.statusService = statusService;
+    }
 
     @Override
     public ExecutionResponse execute(CommandDetails commandDetails) {
+        MinecraftDetails currentStatus = statusService.getCurrentStatus();
+        if (currentStatus.getServerDetails().getStatus() == STOPPED) {
+            return attemptToStartServer();
+        } else {
+            ExecutionResponse executionResponse = new ExecutionResponse();
+            executionResponse.setStatus(FAILED);
+            executionResponse.setMessage("Server is already running");
+            executionResponse.setMinecraftDetails(currentStatus);
+            return executionResponse; 
+        }
+    }
+
+    private ExecutionResponse attemptToStartServer() {
         File startScript = new File(rootDir, startScriptName);
         ExecutionResponse executionResponse = new ExecutionResponse();
         StringBuffer sb = new StringBuffer();
-
         Process p;
         try {
             LOGGER.info("Command to be executed: {}", startScript.getAbsolutePath());
@@ -49,13 +69,15 @@ public class StartMinecraftServerCommand implements Command {
             while ((line = reader.readLine()) != null) {
                 sb.append(line + "\n");
             }
+            MinecraftDetails details = statusService.registerServerStarted();
             executionResponse.setStatus(SUCCESSFUL);
+            executionResponse.setMinecraftDetails(details);
         } catch (IOException | InterruptedException e) {
             LOGGER.error(e.getMessage(), e);
             sb.append(e.getMessage());
             executionResponse.setStatus(FAILED);
         }
-        executionResponse.addAdditionalInfo("message", sb.toString());
+        executionResponse.setMessage(sb.toString());
         return executionResponse;
     }
 

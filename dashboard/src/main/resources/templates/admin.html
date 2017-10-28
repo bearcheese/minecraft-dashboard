@@ -11,42 +11,44 @@
     <script type="text/javascript" src="/webjars/jquery/jquery.min.js"></script>
 </head>
 <body>
-<div>
+<div id="introduction">
     <h3 th:text="'Hello, ' + ${user.name} + '!'" ></h3>
 </div>
-<div>
-    <table>
-        <thead>
-            <tr>
-                <th>#</th>
-                <th>Instance id</th>
-                <th>Public IP</th>
-                <th>State</th>
-                <th>Launch time</th>
-                <th>Minecraft server</th>
-                <th>Players</th>
-                <th>&nbsp;</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr th:each="instance : ${instances}">
-                <td th:text="${instanceStat.count}"></td>
-                <td th:text="${instance.instanceId}"></td>
-                <td th:text="${instance.publicIpAddress}"></td>
-                <td th:text="${instance.state}"></td>
-                <td th:text="${instance.launchTime}"></td>
-                <td th:text="${instance.minecraftServerInfo.status}"></td>
-                <td th:text="${instance.minecraftServerInfo.players} + '/' + ${instance.minecraftServerInfo.maxPlayers}"></td>
-                <td><a th:if="${instance.state} == 'running'" id="stop-server" href="/admin/stop" th:href="@{/admin/stop}">Stop</a></td>
-            </tr>
-        </tbody>
-    </table>
-</div>
-<div th:if="${numberOfRunningInstances} == 0">
-    <a id="start-server" href="/admin/start" th:href="@{/admin/start}">Start</a>
-</div>
-<div>
-    TEST! <a id="test" href="/admin/test" th:href="@{/admin/majom}">GO</a>
+<div id="ec2-instance">
+    <h5>Instance details</h5>
+    <div class="instance" th:if="${instance != null}">
+        <div class="details">
+            <p>Instance ID: <span th:text="${instance.instanceId}"></span></p>
+            <p>Public IP: <span th:text="${instance.publicIpAddress}?: '-'"></span></p>
+            <p>State: <span th:text="${instance.state}"></span></p>
+            <p>Launch time: <span th:text="${instance.launchTime}?: '-'"></span></p>
+            <p><a th:if="${instance.state} == 'running'" id="stop-instance" href="/admin/stop-instance" th:href="@{/admin/stop-instance}">Stop</a></p>
+        </div>
+        <div id="minecraft-status" th:if="${instance.minecraftDetails != null}">
+            <p>Minecraft status: <span th:text="${instance.minecraftDetails.serverDetails.status}"></span></p>
+            <p th:if="${instance.minecraftDetails.serverDetails.status.name() == 'RUNNING'}">Players: <span th:text="${instance.minecraftDetails.serverDetails.info.players.online} + '/' + ${instance.minecraftDetails.serverDetails.info.players.max}"></span></p>
+            <p>Map loaded: 
+              <span th:inline="text" th:if="${instance.minecraftDetails.mapDetails.loadedMap != null}">
+                [[${{instance.minecraftDetails.mapDetails.loadedMap.name}}]] loaded on [[${{instance.minecraftDetails.mapDetails.loadedMap.time}}]]
+              </span>
+            </p>
+            <p>Map saved: 
+              <span th:inline="text" th:if="${instance.minecraftDetails.mapDetails.savedMap != null}">
+                [[${{instance.minecraftDetails.mapDetails.savedMap.name}}]] saved on [[${{instance.minecraftDetails.mapDetails.savedMap.time}}]]
+              </span>
+            </p>
+            <p><a id="refresh-status" href="/admin/status" th:href="@{/admin/status}">Refresh</a></p>
+        </div>
+        <div id="minecraft-commands">
+            <p><a id="load-map" href="/admin/load-map" th:href="@{/admin/load-map}">Load</a></p>
+            <p><a id="start-minecraft" href="/admin/start-server" th:href="@{/admin/start-server}">Start minecraft</a></p>
+            <p><a id="stop-minecraft" href="/admin/stop-server" th:href="@{/admin/stop-server}">Stop minecraft</a></p>
+            <p><a id="save-map" href="/admin/save-map" th:href="@{/admin/save-map}">Save</a></p>
+        </div>
+    </div>
+    <div th:if="${instance == null}">
+        <a id="start-instance" href="/admin/start-instance" th:href="@{/admin/start-instance}">Start</a>
+    </div>
 </div>
 <script>
     var adminAjax = function(event) {
@@ -64,9 +66,13 @@
             }
         });
     }
-    $('#stop-server').click(adminAjax);
-    $('#start-server').click(adminAjax);
-    $('#test').click(adminAjax);
+    $('#stop-instance').click(adminAjax);
+    $('#start-instance').click(adminAjax);
+    $('#load-map').click(adminAjax);
+    $('#save-map').click(adminAjax);
+    $('#start-minecraft').click(adminAjax);
+    $('#stop-minecraft').click(adminAjax);
+    $('#refresh-status').click(adminAjax);
 
 </script>
 </body>

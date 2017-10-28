@@ -1,4 +1,4 @@
-package hu.bearmaster.minecraftstarter.server.model;
+package hu.bearmaster.minecraftstarter.dashboard.domain.response;
 
 public class ExecutionResponse {
 

@@ -7,7 +7,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import hu.bearmaster.minecraftstarter.dashboard.domain.Ec2Instance;
+import hu.bearmaster.minecraftstarter.dashboard.domain.ServerInstance;
 import software.amazon.awssdk.services.autoscaling.AutoScalingClient;
 import software.amazon.awssdk.services.autoscaling.model.AutoScalingGroup;
 import software.amazon.awssdk.services.autoscaling.model.DescribeAutoScalingGroupsRequest;
@@ -52,14 +52,14 @@ public class AwsService {
         setAutoScalingGroupCapacity(autoScalingGroupName, 0);
     }
 
-    public List<Ec2Instance> getInstancesByIds(List<String> instanceIds) {
+    public List<ServerInstance> getInstancesByIds(List<String> instanceIds) {
         DescribeInstancesRequest describeInstancesRequest = DescribeInstancesRequest.builder()
                 .instanceIds(instanceIds)
                 .build();
         DescribeInstancesResponse describeInstancesResponse = ec2Client.describeInstances(describeInstancesRequest);
         return describeInstancesResponse.reservations().stream()
                 .flatMap(reservation -> reservation.instances().stream())
-                .map(Ec2Instance::new)
+                .map(ServerInstance::new)
                 .collect(toList());
     }
 

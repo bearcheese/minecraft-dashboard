@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import hu.bearmaster.minecraftstarter.server.model.CommandDetails;
 import hu.bearmaster.minecraftstarter.server.model.ExecutionResponse;
-import hu.bearmaster.minecraftstarter.server.service.CommandDecoderService;
 import hu.bearmaster.minecraftstarter.server.service.CommandExecutorService;
+import hu.bearmaster.minecraftstarter.server.service.decoder.CommandDecoderService;
 
 @RestController
 @RequestMapping("/minecraft")
@@ -27,18 +27,11 @@ public class MinecraftController {
         this.commandExecutorService = commandExecutorService;
     }
 
-    //start minecraft server
     @PostMapping("/execute")
     public ExecutionResponse executeCommand(@RequestBody String jwtToken) {
         LOGGER.info("Minecraft execute command invoked");
         CommandDetails commandDetails = commandDecoderService.decode(jwtToken);
         return commandExecutorService.execute(commandDetails);
     }
-
-    //stop minecraft server
-    //load map from S3
-    //save map to S3
-    //server health check
-    //log retrieval
 
 }

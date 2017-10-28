@@ -1,7 +1,6 @@
 package hu.bearmaster.minecraftstarter.server.model;
 
-public enum Status {
-
-    FAILED,
-    SUCCESSFUL
+public enum ServerStatus {
+    STOPPED, 
+    RUNNING;
 }

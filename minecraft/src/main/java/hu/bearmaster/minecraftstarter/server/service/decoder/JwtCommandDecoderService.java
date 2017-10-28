@@ -1,7 +1,8 @@
-package hu.bearmaster.minecraftstarter.server.service;
+package hu.bearmaster.minecraftstarter.server.service.decoder;
 
 import static hu.bearmaster.minecraftstarter.server.model.Action.action;
 
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import com.auth0.jwt.JWT;
@@ -11,14 +12,16 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import hu.bearmaster.minecraftstarter.server.model.CommandDetails;
 
 @Service
-public class CommandDecoderService {
+@Profile("production")
+public class JwtCommandDecoderService implements CommandDecoderService {
 
     private final Algorithm algorithm;
 
-    public CommandDecoderService(Algorithm algorithm) {
+    public JwtCommandDecoderService(Algorithm algorithm) {
         this.algorithm = algorithm;
     }
 
+    @Override
     public CommandDetails decode(String token) {
         JWTVerifier verifier = JWT.require(algorithm)
                 .withIssuer("dashboard")

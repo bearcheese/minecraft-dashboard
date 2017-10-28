@@ -1,8 +1,8 @@
 package hu.bearmaster.minecraftstarter.server.command;
 
 import static hu.bearmaster.minecraftstarter.server.model.Action.STOP_SERVER;
-import static hu.bearmaster.minecraftstarter.server.model.Status.FAILED;
-import static hu.bearmaster.minecraftstarter.server.model.Status.SUCCESSFUL;
+import static hu.bearmaster.minecraftstarter.server.model.ResponseStatus.FAILED;
+import static hu.bearmaster.minecraftstarter.server.model.ResponseStatus.SUCCESSFUL;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -17,6 +17,9 @@ import org.springframework.stereotype.Component;
 import hu.bearmaster.minecraftstarter.server.model.Action;
 import hu.bearmaster.minecraftstarter.server.model.CommandDetails;
 import hu.bearmaster.minecraftstarter.server.model.ExecutionResponse;
+import hu.bearmaster.minecraftstarter.server.model.MinecraftDetails;
+import hu.bearmaster.minecraftstarter.server.model.ServerStatus;
+import hu.bearmaster.minecraftstarter.server.service.StatusService;
 
 @Component
 public class StopMinecraftServerCommand implements Command {
@@ -28,9 +31,29 @@ public class StopMinecraftServerCommand implements Command {
 
     @Value("${minecraft.stop.script}")
     private String stopScriptName;
+    
+    private final StatusService statusService;
+
+    public StopMinecraftServerCommand(StatusService statusService) {
+        this.statusService = statusService;
+    }
 
     @Override
     public ExecutionResponse execute(CommandDetails commandDetails) {
+        MinecraftDetails currentStatus = statusService.getCurrentStatus();
+        
+        if (currentStatus.getServerDetails().getStatus() == ServerStatus.RUNNING) {
+            return attemptToStopServer();
+        } else {
+            ExecutionResponse executionResponse = new ExecutionResponse();
+            executionResponse.setStatus(FAILED);
+            executionResponse.setMessage("Server is already stopped");
+            executionResponse.setMinecraftDetails(currentStatus);
+            return executionResponse;  
+        }
+    }
+
+    private ExecutionResponse attemptToStopServer() {
         File stopScript = new File(rootDir, stopScriptName);
         ExecutionResponse executionResponse = new ExecutionResponse();
         StringBuffer sb = new StringBuffer();
@@ -54,7 +77,7 @@ public class StopMinecraftServerCommand implements Command {
             sb.append(e.getMessage());
             executionResponse.setStatus(FAILED);
         }
-        executionResponse.addAdditionalInfo("message", sb.toString());
+        executionResponse.setMessage(sb.toString());
         return executionResponse;
     }
 

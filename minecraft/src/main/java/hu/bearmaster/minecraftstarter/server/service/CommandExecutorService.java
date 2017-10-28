@@ -1,7 +1,6 @@
 package hu.bearmaster.minecraftstarter.server.service;
 
-import static hu.bearmaster.minecraftstarter.server.model.Status.FAILED;
-import static hu.bearmaster.minecraftstarter.server.model.Status.SUCCESSFUL;
+import static hu.bearmaster.minecraftstarter.server.model.ResponseStatus.FAILED;
 
 import java.util.List;
 
@@ -37,7 +36,7 @@ public class CommandExecutorService {
         if (response == null) {
             response = new ExecutionResponse();
             response.setStatus(FAILED);
-            response.addAdditionalInfo("message", "Command not found");
+            response.setMessage("Command not found");
         }
         response.setId(commandDetails.getId());
         LOGGER.info("CommandDetails executed with results: {}", response);

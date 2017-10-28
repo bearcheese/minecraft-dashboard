@@ -4,7 +4,7 @@ public class ExecutionRequest {
 
     private String id;
 
-    private String subject;
+    private Action action;
 
     private String requestor;
 
@@ -16,12 +16,12 @@ public class ExecutionRequest {
         this.id = id;
     }
 
-    public String getSubject() {
-        return subject;
+    public Action getAction() {
+        return action;
     }
 
-    public void setSubject(String subject) {
-        this.subject = subject;
+    public void setAction(Action subject) {
+        this.action = subject;
     }
 
     public String getRequestor() {
@@ -30,5 +30,14 @@ public class ExecutionRequest {
 
     public void setRequestor(String requestor) {
         this.requestor = requestor;
+    }
+
+    @Override
+    public String toString() {
+        return "ExecutionRequest{" +
+                "id='" + id + '\'' +
+                ", action=" + action +
+                ", requestor='" + requestor + '\'' +
+                '}';
     }
 }
